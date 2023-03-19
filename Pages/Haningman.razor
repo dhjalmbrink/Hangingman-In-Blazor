@@ -1,0 +1,158 @@
+﻿@page "/hangingman"
+<PageTitle>Hanging Man</PageTitle>
+
+@using BlazorHaningman.Model
+@using BlazorHaningman.Services
+@using System.Text.RegularExpressions;
+@using Microsoft.AspNetCore.Components;
+@inject WordService wordService
+
+<section id="haning-man">
+    <h1>Hanging man</h1>
+
+    @if (startedGame && newWord != string.Empty)
+    {
+        <article class="game">
+
+            <h2>
+                @foreach (var letter in letterList)
+                {
+                    @letter.LetterShowing;
+                }
+            </h2>
+
+            @if (lives != 0 || lettersLeft == 0)
+            {
+                <label for="input-letter">Guess a letter:</label>
+                <input class="guessing-Letter" value=@ValueText name="input-letter" @onchange="@yourGuess" />
+            }
+
+            @if (guessedLetter.Any())
+            {
+                <h4>
+                    You have tried with:
+                    @foreach (var guess in guessedLetter)
+                    {
+                        @guess;
+                    }
+                </h4>
+            }
+
+            @if (infoText != string.Empty)
+            {
+                <h2>@infoText</h2>
+            }
+        </article>
+        <article class="game-lives">
+            <div id="lives">@lives</div>
+            <div id="heart"></div>
+        </article>
+
+    }
+
+    <button class="btn btn-success" @onclick="startGame">@StartNewGame</button>
+</section>
+
+@code {
+    bool startedGame { get; set; } = false;
+    string newWord;
+    string ValueText;
+    List<RandomWord> letterList = new List<RandomWord>();
+    int lives = 8;
+    int lettersLeft = 0;
+    List<string> guessedLetter = new List<string>();
+    Regex validCharacters = new Regex("^[a-z]$");
+    string infoText = string.Empty;
+    string StartNewGame = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        StartNewGame = "Start game";
+    }
+
+    async Task startGame()
+    {
+        newWord = string.Empty;
+        newWord = await wordService.GetRandomWord();
+        lives = 8;
+        lettersLeft = 0;
+        guessedLetter = new List<string>();
+        infoText = string.Empty;
+        StartNewGame = string.Empty;
+        letterList = new List<RandomWord>();
+        letterCheck(string.Empty);
+        startedGame = true;
+        StartNewGame = "Restart";
+    }
+
+    void yourGuess(ChangeEventArgs yourGuessedLetter)
+    {
+        infoText = string.Empty;
+        var letter = (string)yourGuessedLetter.Value;
+
+        if (validCharacters.IsMatch(letter))
+        {
+            if (!guessedLetter.Contains(letter))
+            {
+                letterCheck(letter);
+            }
+            else
+            {
+                infoText = "Looks like you have tried this one before, try again";
+            }
+        }
+        else
+        {
+            infoText = "Looks like something is wrong with your letter, try again";
+        }
+        ValueText = string.Empty;
+    }
+
+    void letterCheck(string? tryLetter)
+    {
+        if (!letterList.Any() && tryLetter == string.Empty)
+        {
+            foreach (char letter in newWord)
+            {
+                var letterInWord = new RandomWord
+                    {
+                        Letter = letter.ToString(),
+                        LetterShowing = ("_ ")
+                    };
+                letterList.Add(letterInWord);
+                lettersLeft++;
+            }
+        }
+        else if (tryLetter != null && letterList != null)
+        {
+
+            for (var i = 0; i < letterList.Count; i++)
+            {
+                if (letterList[i].Letter == tryLetter)
+                {
+                    letterList[i].LetterShowing = tryLetter;
+                    lettersLeft--;
+                }
+            }
+            if (!newWord.Contains(tryLetter))
+            {
+                lives--;
+                infoText = "Letter is not used";
+            }
+            guessedLetter.Add(tryLetter);
+
+            if (lettersLeft == 0)
+            {
+                infoText = "You Won, with " + lives + " lives left";
+                StartNewGame = "Play New Game";
+            }
+
+            if (lives == 0)
+            {
+                infoText = "You lost, the word was " + newWord;
+                StartNewGame = "Play New Game";
+            }
+        }
+
+    }
+}
