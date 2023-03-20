@@ -20,7 +20,7 @@
         height: 250px;
     }
 
-    #haning-man .btn {
+    #haning-man .btn.btn-success {
         margin: 30px 0;
         min-width: 30%;
         font-size: 25px;

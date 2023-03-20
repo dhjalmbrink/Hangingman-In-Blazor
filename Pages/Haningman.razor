@@ -24,7 +24,8 @@
             @if (lives != 0 || lettersLeft == 0)
             {
                 <label for="input-letter">Guess a letter:</label>
-                <input class="guessing-Letter" value=@ValueText name="input-letter" @onchange="@yourGuess" />
+                <input class="guessing-Letter" @onkeydown="@Enter" name="input-letter" @bind="ValueText" />
+                <button class="btn btn-primary" @onclick="yourGuess">Guess Letter</button>
             }
 
             @if (guessedLetter.Any())
@@ -85,10 +86,18 @@
         StartNewGame = "Restart";
     }
 
-    void yourGuess(ChangeEventArgs yourGuessedLetter)
+    void Enter(KeyboardEventArgs e)
+    {
+        if (e.Code == "Enter" || e.Code == "NumpadEnter")
+        {
+            yourGuess();
+        }
+    }
+
+    void yourGuess()
     {
         infoText = string.Empty;
-        var letter = (string)yourGuessedLetter.Value;
+        var letter = ValueText;
 
         if (validCharacters.IsMatch(letter))
         {
