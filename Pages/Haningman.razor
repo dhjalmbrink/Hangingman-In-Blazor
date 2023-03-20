@@ -99,7 +99,11 @@
         infoText = string.Empty;
         var letter = ValueText;
 
-        if (validCharacters.IsMatch(letter))
+        if (!validCharacters.IsMatch(letter))
+        {
+            infoText = "Looks like something is wrong with your letter, try again";
+        }
+        else
         {
             if (!guessedLetter.Contains(letter))
             {
@@ -109,10 +113,6 @@
             {
                 infoText = "Looks like you have tried this one before, try again";
             }
-        }
-        else
-        {
-            infoText = "Looks like something is wrong with your letter, try again";
         }
         ValueText = string.Empty;
     }
