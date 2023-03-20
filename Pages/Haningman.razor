@@ -24,7 +24,7 @@
             @if (lives != 0 || lettersLeft == 0)
             {
                 <label for="input-letter">Guess a letter:</label>
-                <input class="guessing-Letter" @onkeydown="@Enter" name="input-letter" @bind="ValueText" />
+                <input class="guessing-Letter" @onkeydown="@onEnterClick" name="input-letter" @bind="yourLetter" />
                 <button class="btn btn-primary" @onclick="yourGuess">Guess Letter</button>
             }
 
@@ -51,24 +51,24 @@
 
     }
 
-    <button class="btn btn-success" @onclick="startGame">@StartNewGame</button>
+    <button class="btn btn-success" @onclick="startGame">@startNewGame</button>
 </section>
 
 @code {
     bool startedGame { get; set; } = false;
     string newWord;
-    string ValueText;
+    string yourLetter;
     List<RandomWord> letterList = new List<RandomWord>();
     int lives = 8;
     int lettersLeft = 0;
     List<string> guessedLetter = new List<string>();
     Regex validCharacters = new Regex("^[a-z]$");
     string infoText = string.Empty;
-    string StartNewGame = string.Empty;
+    string startNewGame = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-        StartNewGame = "Start game";
+        startNewGame = "Start game";
     }
 
     async Task startGame()
@@ -79,14 +79,13 @@
         lettersLeft = 0;
         guessedLetter = new List<string>();
         infoText = string.Empty;
-        StartNewGame = string.Empty;
         letterList = new List<RandomWord>();
         letterCheck(string.Empty);
         startedGame = true;
-        StartNewGame = "Restart";
+        startNewGame = "Restart";
     }
 
-    void Enter(KeyboardEventArgs e)
+    void onEnterClick(KeyboardEventArgs e)
     {
         if (e.Code == "Enter" || e.Code == "NumpadEnter")
         {
@@ -97,7 +96,7 @@
     void yourGuess()
     {
         infoText = string.Empty;
-        var letter = ValueText;
+        var letter = yourLetter;
 
         if (!validCharacters.IsMatch(letter))
         {
@@ -114,7 +113,7 @@
                 infoText = "Looks like you have tried this one before, try again";
             }
         }
-        ValueText = string.Empty;
+        yourLetter = string.Empty;
     }
 
     void letterCheck(string? tryLetter)
@@ -153,13 +152,13 @@
             if (lettersLeft == 0)
             {
                 infoText = "You Won, with " + lives + " lives left";
-                StartNewGame = "Play New Game";
+                startNewGame = "Play New Game";
             }
 
             if (lives == 0)
             {
                 infoText = "You lost, the word was " + newWord;
-                StartNewGame = "Play New Game";
+                startNewGame = "Play New Game";
             }
         }
 
