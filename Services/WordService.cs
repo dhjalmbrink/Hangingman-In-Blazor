@@ -18,10 +18,16 @@ namespace BlazorHaningman.Services
 
                 var result = await client.GetAsync(addUrl);
                 var resultContent = await result.Content.ReadAsStringAsync();
-                var newRandomWord = JsonConvert.DeserializeObject<Word>(resultContent);
-                randomWord = newRandomWord.word;
+                if (result.IsSuccessStatusCode)
+                {
+                    var newRandomWord = JsonConvert.DeserializeObject<Word>(resultContent);
+                    randomWord = newRandomWord.word;
+                }
+                else
+                {
+                    //here we can return error logs 
+                }
             }
-
             return randomWord;
         }
     }
